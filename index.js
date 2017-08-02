@@ -204,21 +204,26 @@ Tracker.prototype.scrape = function(info_hashes, options, cb) {
         request(requestUri.toString(), {encoding: null, timeout: options.timeout }, function(err, res, body) {
             if(err) return cb(err, null);
 
-            var data = bencode.decode(body, 'binary');
-            data.files = _.object(
-                _.map(data.files, function(val, key) { 
-                    return [
-                        new Buffer(key, 'binary').toString('hex'), 
-                        { 
-                            seeders: val.complete,
-                            completed: val.downloaded,
-                            leechers: val.incomplete
-                        }
-                    ]
-                })
-            );
+            try {
+                var data = bencode.decode(body, 'binary');
+                data.files = _.object(
+                    _.map(data.files, function(val, key) { 
+                        return [
+                            new Buffer(key, 'binary').toString('hex'), 
+                            { 
+                                seeders: val.complete,
+                                completed: val.downloaded,
+                                leechers: val.incomplete
+                            }
+                        ]
+                    })
+                );
 
-            cb(undefined, data.files);
+                cb(undefined, data.files);
+            } catch (e) {
+                cb(e, null);
+            }
+            
         })
 
     }
