@@ -322,11 +322,17 @@ function deserializeScrapeResponse(packet) {
     var transaction_id = packet.readUInt32BE(4);
     var torrents = [];
     for(var i = 8; i < packet.length; i += 12) {
-        torrents.push({
-            seeders: packet.readUInt32BE(i),
-            completed: packet.readUInt32BE(i + 4),
-            leechers: packet.readUInt32BE(i + 8)
-        });
+        try {
+            torrents.push({
+                seeders: packet.readUInt32BE(i),
+                completed: packet.readUInt32BE(i + 4),
+                leechers: packet.readUInt32BE(i + 8)
+            });
+        } catch(e) {
+            torrents.push({
+                error: e
+            });
+        }
     }
     return {
         type: 'scrape',
